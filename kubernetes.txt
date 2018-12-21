@@ -1,0 +1,30 @@
+2 types of resources available
+master, slave
+--master responsible for managing cluster-->scheduling application, managing state,scaling and rolling out update
+--slave is VM or PC called node--has kubernet for managing node and communicating master--communicates with master using kubernetes API
+--kubernetes cluster with traffic must have at least 3 node
+--node has docker or rkt installed on it
+--cluster can be deployed on VM or physical machine
+--Minikube is used to create VM on local machine and to deploy simple cluster with one node
+
+
+commands to create and deploy cluster 
+
+minikube start
+
+
+-- create and manage deployement using kubernetes command line interface kubectl
+--kubectl uses kubernetes API to interact with cluster 
+	kubectl create deployment application_name --image= PATH --->to create deployment that manages the pod
+	kubectl show deployments --> to show all created deployment
+	kubectl get pods --> show pods
+	kubectl get events -->view cluster events
+	kubectl config view -->view kubectl configuration
+	kubectl expose deployment hello-node --type=LoadBalancer --port=8080 -->expose the pod to public internet
+		--type=LoadBalancer indicates that you want to expose the service outside the cluster
+	kubectl get services --> to show services created
+	minikube service hello-node
+	
+	kubectl run 
+	
+	

@@ -1,0 +1,229 @@
+Ansible --open source IT engine 
+	--automates application deployment, intra service orchestration, cloud provisioning
+	--easy to deploy because doesnt uses any agents or security infrastructure
+	--uses playbook to define automation 
+	--playbooj uses YAML language
+	--configuration management means maintaning product configuration
+	--ansible works by connecting to nodes and psuhing out small programs called modules to it
+	--ansible then executes these modules and removes them when finished
+	--inventory provides list of hosts where ansible must run and management tool does the SSH connection and executes small module
+
+2 type of machines
+--control machine- used to manage other machine
+--remote machine-used to handled by control machine
+
+playbook- yml file where ansible commands are written and yml is executed
+
+commands used in ansible
+Ansible server_name -m copy -a "src = /etc/yum.conf dest = /tmp/yum.conf"   ----> used for transfering files to many servers/machines
+
+-m --module name
+-a --module args
+Ansible server_name -m file -a "dest = /path/user1/new mode = 777 owner = user1 group = user1 state = directory"  --->creating new directory
+
+ Ansible abc -m file -a "dest = /path/user1/new state = absent" ----> deleting whole file or directory
+
+yum module is used for managing packages
+
+Ansible abc -m yum -a "name=demo-tomcat-1 state=present" -->checking if the package is installed or not
+Ansible abc -m yum -a "name=demo-tomcate-1 state=latest" -->checks if latest version is installed
+
+
+Playbook
+playbook is used to define set of instructions for the particular hosts
+
+
+yaml tags
+name: specifies name of playbook
+hosts: specifies list of hosts against which task needs to be run
+vars: defines variable to be used in playbook
+tasks:specifies the task or list of tasks that needs to be performed on hosts
+
+roles provide full framework for dependent and independent tasks modules files
+
+
+installing apache--> Ansible webserver -m yum -a "name=httpd state=present" --become
+installing git--> ANsible webserver -m yum -a "name=git state=present" --become
+
+
+managing services
+Ansible webserver -m service -a "name=git state=started" --become   -->starting service
+Ansible webserver -m service -a "name=git state=stopped" --become   --> stoppping service
+Ansible webserver -m srevice -a "name=git state-restarted" --become ---> restarting service
+
+
+sample format of playbook
+
+---Playbook start
+-hosts: webservers
+ become: true
+ tasks:
+ - name: Copy tomcat zip file to desired location
+   copy: src=/home/ansible/niranjan/apache-tomcat-8.5.31.tar.gz dest=/opt/mukul/tomcat
+
+run playbook --> ansible-playbook <playbook.yml>
+
+check playbook for syntax errors --> ansible-playbook <playbook.yml> --syntax-check
+
+view hosts list --> ansible-playbook <playbook.yml> --list-hosts
+
+creating file playbook
+
+---
+-hosts: webservers
+ become: true
+ tasks:
+ -name: creating file
+  file: path=/home/ansible/mukul.txt state=touch
+
+creating directory playbook
+
+---
+-hosts: webservers
+ become: true
+ tasks:
+ -name: creating directory
+  file: path=/home/ansible/mukul state=directory mode=775
+
+creating multiple directories
+
+---
+-hosts: webservers
+ become: true
+ tasks:
+ -name: creating multiple directories
+  file: path={{item}} state=directory
+  with_item:
+  -'home/v1/mukul'
+  -'home/v2/mukul'
+  -'home/v3/mukul'
+
+creating user
+
+---
+-hosts: webservers
+ become: true
+ tasks:
+ -name: create user
+  user: name=mukul password=mukul group=ansible
+
+
+deleting user
+
+---
+-hosts: webservers
+ become: true
+ tasks:
+ -name: deleting user
+  user: name=mukul state=absent remove=yes force=yes
+
+copy content of file using copy module
+copy: content="Hello World mukul \n" dest=/home/ansible/mukul.txt
+
+replace all instances of a word
+replace:
+ path=/home/ansible/mukul.txt
+ regexp: 'hello'
+ replace: "world"
+
+archive files
+
+archive:
+ path: /home/ansible/mukul.txt
+ dest: /home/ansible/mukul.zip
+ format: zip
+
+
+zip multiple files
+archive:
+   path:
+    - /home/ansible/niranjan1.txt
+    - /home/ansible/niranjan2.txt
+   dest: /home/ansible/niranjan.zip
+   format: zip
+
+date and time in ansible
+
+tasks:
+-name: Date and time
+debug:
+ var=ansible_date_time.time
+ var=ansible_adte_time.date
+
+variable example
+
+vars:
+name: 
+ -mukul
+ -dwivedi
+tasks:
+-name: example'
+ debug:
+  msg:"{{ name[0] }}"///output will be mukul
+
+
+register variable
+
+-hosts: all
+ tasks:
+ -name: Ansible regsiter variable example
+  shell: "find *.txt"
+  args:
+   chdir: "/home/Ansible"
+  register: reg_output
+ -debug:
+   var: reg_output
+
+installing vim editor and git on server
+
+tasks:
+-name: install packages
+ yum: name=vim,git state=latest
+
+installing and starting apache server
+
+tasks:
+-name: install packages
+yum: name=httpd state=present
+-name: start httpd service
+ service: name=httpd state=started
+
+isnatlling JDK
+
+vars:
+ download_url: http://download.oracle.com/otn-pub/java/jdk/8u171-b11/512cd62ec5174c3487ac17c61aaa89e8/jdk-8u171-linux-x64.rpm
+
+tasks:
+-name: Download JDK 8 rpm file
+ command: "wget --no-check-certificate --no-cookies --header 'Cookie: oraclelicense=accept-securebackup-cookie' {{download_url}} "
+-name: Install JDK 8
+ command: "rpm -ivh jdk-8u171-linux-x64.rpm"
+
+handlers are just like playbook task which run only when notify directive is provided
+
+tasks:
+  - name: Install httpd package
+    yum: name=httpd state=latest
+  - name: Copy the httpd configuration file
+  copy: src=/home/ansible/httpd.final dest=/etc/httpd/conf/httpd.conf
+  - name: Copy index.html file
+  copy: src=/home/ansible/index.html dest=/var/www/html
+  notify:
+  - restart httpd
+  - name: Start httpd service
+  service: name=httpd state=started enabled=yes
+  handlers:
+  - name: restart httpd
+  service: name=httpd state=restarted
+
+
+here first apache server is installed and then if there is any change in config file then server will be restarted
+
+
+creating new encrypted file
+
+ansible-vau;t
+
+
+
+

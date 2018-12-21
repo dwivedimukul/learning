@@ -1,0 +1,4 @@
+commands for openshift cli
+-- oc login
+--oc new-project <projectname>
+--oc new-app 
